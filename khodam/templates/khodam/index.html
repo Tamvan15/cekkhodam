@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cek Khodam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  </head>
+
+  <body class="bg-gray-100">
+    <div class="flex items-center justify-center min-h-screen">
+      <div class="w-full max-w-2xl">
+        <form
+          action="{% url 'index' %}"
+          class="space-y-6 rounded-lg p-6 shadow-lg sm:p-8 lg:p-10 bg-white"
+          method="post"
+        >
+          {% csrf_token %}
+          <h1
+            class="text-center text-4xl font-bold text-indigo-600 sm:text-5xl"
+          >
+            Cek Khodam
+          </h1>
+
+          <div id="inputan">
+            <label
+              for="nama"
+              class="relative block rounded-md border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+            >
+              <input
+                type="text"
+                id="nama"
+                name="nama"
+                class="peer border-none bg-transparent placeholder-transparent focus:border-transparent focus:outline-none focus:ring-0 w-full rounded-lg border-gray-200 p-6 pe-12 text-lg shadow-sm"
+                placeholder="Masukan Nama"
+                required
+              />
+
+              <span
+                class="pointer-events-none absolute left-2.5 top-0 -translate-y-1/2 bg-white p-0.5 text-base text-gray-700 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-lg peer-focus:top-0 peer-focus:text-base"
+              >
+                Masukan Nama
+              </span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="block w-full rounded-lg bg-indigo-600 px-5 py-4 text-lg font-medium text-white"
+            id="cekButton"
+          >
+            Cek
+          </button>
+
+          <div class="mt-8 text-center text-lg">
+            <a
+              href="{% url 'adu_khodam' %}"
+              class="text-indigo-600 hover:text-indigo-500"
+            >
+              Adu Khodam
+            </a>
+          </div>
+        </form>
+
+        <div
+          class="absolute right-1/2 bottom-1/2 transform translate-x-1/2 translate-y-1/2"
+          id="loadingAnimation"
+          style="display: none"
+        >
+          <div
+            class="p-6 bg-gradient-to-tr animate-spin from-green-500 to-blue-500 via-purple-500 rounded-full"
+          >
+            <div class="bg-white rounded-full">
+              <div class="w-32 h-32 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="space-y-6 rounded-lg p-6 shadow-lg sm:p-8 lg:p-10 bg-white"
+          id="result"
+          style="display: none"
+        >
+          <p id="khodamOutput" class="text-center text-4xl">
+            Halo <strong id="namaOutput"></strong>, Khodam kamu adalah
+          </p>
+          <!-- Tombol Kembali -->
+          <button
+            type="button"
+            class="block w-full rounded-lg bg-gray-600 px-5 py-4 text-lg font-medium text-white"
+            id="backButton"
+            onclick="window.location.reload();"
+          >
+            Kembali
+          </button>
+          <button
+            id="share-button"
+            class="block w-full rounded-lg bg-indigo-600 px-5 py-4 text-lg font-medium text-white mt-4"
+          >
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+    document.getElementById('cekButton').addEventListener('click', function(e) {
+        e.preventDefault(); // Menghentikan form dari submit biasa
+        document.querySelector('form').style.display = 'none'; // Menyembunyikan form input
+        document.getElementById('loadingAnimation').style.display = 'block'; // Menampilkan animasi loading
+        setTimeout(function() {
+            var formData = new FormData(document.querySelector('form'));
+            formData.append('csrfmiddlewaretoken',
+            '{{ csrf_token }}'); // Memastikan CSRF token terkirim
+            fetch('{% url 'index' %}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}' // Mengirim CSRF token
+                        }
+                    })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('namaOutput').innerHTML += '<strong> ' + data.nama + '</strong>'; // Menampilkan hasil khodam terpilih
+                    document.getElementById('khodamOutput').innerHTML += '<strong> ' + data.khodam_terpilih
+                        .namaKhodam + '</strong>'; // Menampilkan hasil khodam terpilih
+                    document.getElementById('result').style.display = 'block';
+                    // Output Suara
+                    const teksUntukDibicarakan = `Halo ${data.nama}! Khodam kamu adalah ${data.khodam_terpilih.namaKhodam}`;
+                    const ucapan = new SpeechSynthesisUtterance(teksUntukDibicarakan);
+                    ucapan.lang = 'id-ID'; // Menetapkan bahasa output suara ke bahasa Indonesia
+                    window.speechSynthesis.speak(ucapan);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.querySelector('form').style.display =
+                    'block'; // Menampilkan form kembali jika terjadi error
+                })
+                .finally(() => {
+                    document.getElementById('loadingAnimation').style.display =
+                    'none'; // Sembunyikan animasi loading
+                });
+        }, Math.floor(Math.random() * 2000)); // Waktu acak di bawah 2 detik
+    });
+
+    document.getElementById('share-button').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('result');
+      const canvas = await html2canvas(resultDiv);
+      const imageData = canvas.toDataURL('image/png');
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value; // Mengambil CSRF token
+
+      // Upload the screenshot to the server
+      const response = await fetch('/upload_screenshot', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': csrfToken  // Menambahkan CSRF token ke header
+          },
+          body: `image=${encodeURIComponent(imageData)}`
+      });
+      const result = await response.json();
+      const imageUrl = result.image_url;
+      const shareText = `Lihat hasil Adu Khodam saya di sini: ${imageUrl}`;
+
+      if (navigator.share) {
+          // Share with Web Share API
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'result.png', { type: 'image/png' });
+
+          navigator.share({
+              title: 'Adu Khodam',
+              text: shareText,
+              files: [file],
+          }).then(() => {
+              console.log('Thanks for sharing!');
+          }).catch(console.error);
+      } else {
+          // Fallback: copy to clipboard
+          try {
+              await navigator.clipboard.writeText(shareText);
+              alert('Link telah disalin ke clipboard. Silakan tempel di aplikasi yang ingin Anda bagikan.');
+          } catch (err) {
+              console.error('Failed to copy: ', err);
+              alert('Gagal menyalin ke clipboard. Silakan salin secara manual: ' + shareText);
+          }
+      }
+  });
+</script>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRUD Khodam</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@2.51.6/dist/full.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body
+    class="bg-gray-100 flex flex-col items-center justify-center min-h-screen"
+  >
+    <div
+      class="max-w-2xl w-full flex flex-col items-center justify-center min-h-screen"
+    >
+      <!-- Tombol Tambah Khodam -->
+      <div class="mb-4 flex justify-between items-center w-full">
+        <label for="addModal" class="btn btn-primary">Tambah Khodam</label>
+        <a href="{% url 'logout' %}" class="btn btn-error">Logout</a>
+      </div>
+      <!-- Tabel Khodam -->
+      <div class="overflow-x-auto w-full mb-4">
+        <div class="max-h-[500px] overflow-y-auto">
+          <table class="table w-full">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Khodam</th>
+                <th>Kekuatan Khodam</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for khodam in khodams %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ khodam.namaKhodam }}</td>
+                <td>{{ khodam.kekuatanKhodam }}</td>
+                <td>
+                  <label
+                    for="editModal-{{ khodam.id }}"
+                    class="btn btn-warning btn-sm"
+                    >Edit</label
+                  >
+                  <label
+                    for="deleteModal-{{ khodam.id }}"
+                    class="btn btn-error btn-sm"
+                    >Hapus</label
+                  >
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Total Khodam -->
+      <div class="mt-4 text-center">
+        <p>Total Khodam: {{ khodams|length }}</p>
+      </div>
+
+      <!-- Modal Tambah -->
+      <input type="checkbox" id="addModal" class="modal-toggle" />
+      <div class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Tambah Khodam</h3>
+          <form action="{% url 'create_khodam' %}" method="post">
+            {% csrf_token %}
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Nama Khodam</span>
+              </label>
+              <input
+                type="text"
+                name="namaKhodam"
+                placeholder="Nama Khodam"
+                class="input input-bordered"
+                required
+              />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Kekuatan Khodam</span>
+              </label>
+              <input
+                type="number"
+                name="kekuatanKhodam"
+                placeholder="Kekuatan Khodam"
+                class="input input-bordered"
+                required
+              />
+            </div>
+            <div class="modal-action">
+              <button type="submit" class="btn btn-primary">Simpan</button>
+              <label for="addModal" class="btn">Batal</label>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% for khodam in khodams %}
+      <!-- Modal Edit -->
+      <input
+        type="checkbox"
+        id="editModal-{{ khodam.id }}"
+        class="modal-toggle"
+      />
+      <div class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Edit Khodam</h3>
+          <form
+            id="editForm-{{ khodam.id }}"
+            action="{% url 'update_khodam' khodam.id %}"
+            method="post"
+          >
+            {% csrf_token %}
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Nama Khodam</span>
+              </label>
+              <input
+                type="text"
+                name="namaKhodam"
+                placeholder="Nama Khodam"
+                class="input input-bordered"
+                value="{{ khodam.namaKhodam }}"
+                required
+              />
+            </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Kekuatan Khodam</span>
+              </label>
+              <input
+                type="number"
+                name="kekuatanKhodam"
+                placeholder="Kekuatan Khodam"
+                class="input input-bordered"
+                value="{{ khodam.kekuatanKhodam }}"
+                required
+              />
+            </div>
+            <div class="modal-action">
+              <button type="submit" class="btn btn-primary">Simpan</button>
+              <label for="editModal-{{ khodam.id }}" class="btn">Batal</label>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Modal Hapus -->
+      <input
+        type="checkbox"
+        id="deleteModal-{{ khodam.id }}"
+        class="modal-toggle"
+      />
+      <div class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Konfirmasi Hapus Khodam</h3>
+          <form
+            id="deleteForm-{{ khodam.id }}"
+            action="{% url 'delete_khodam' khodam.id %}"
+            method="post"
+          >
+            {% csrf_token %}
+            <p>Apakah Anda yakin ingin menghapus khodam ini?</p>
+            <div class="modal-action">
+              <button type="submit" class="btn btn-error">Hapus</button>
+              <label for="deleteModal-{{ khodam.id }}" class="btn">Batal</label>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>
