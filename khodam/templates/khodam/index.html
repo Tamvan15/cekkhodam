@@ -95,7 +95,7 @@
             Kembali
           </button>
           <button
-            id="share-button"
+            id="shareButton"
             class="block w-full rounded-lg bg-indigo-600 px-5 py-4 text-lg font-medium text-white mt-4"
           >
             Share
@@ -151,47 +151,24 @@
         }, Math.floor(Math.random() * 2000)); // Waktu acak di bawah 2 detik
     });
 
-    document.getElementById('share-button').addEventListener('click', async () => {
-      const resultDiv = document.getElementById('result');
-      const canvas = await html2canvas(resultDiv);
-      const imageData = canvas.toDataURL('image/png');
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value; // Mengambil CSRF token
+    document.getElementById('shareButton').addEventListener('click', async () => {
+        try {
+            const resultElement = document.getElementById('result');
+            const canvas = await html2canvas(resultElement);
+            const image = canvas.toDataURL('image/png');
 
-      // Upload the screenshot to the server
-      const response = await fetch('/upload_screenshot', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'X-CSRFToken': csrfToken  // Menambahkan CSRF token ke header
-          },
-          body: `image=${encodeURIComponent(imageData)}`
-      });
-      const result = await response.json();
-      const imageUrl = result.image_url;
-      const shareText = `Lihat hasil Adu Khodam saya di sini: ${imageUrl}`;
+            const blob = await (await fetch(image)).blob();
 
-      if (navigator.share) {
-          // Share with Web Share API
-          const response = await fetch(imageUrl);
-          const blob = await response.blob();
-          const file = new File([blob], 'result.png', { type: 'image/png' });
+            const shareData = {
+                title: 'Cek Khodam',
+                text: `Halo ${document.getElementById('namaOutput').textContent}, khodam kamu ${document.getElementById('khodamOutput').textContent.split('adalah')[1]}`,
+                files: [new File([blob], 'cek_khodam.png', { type: 'image/png' })]
+            }
 
-          navigator.share({
-              title: 'Adu Khodam',
-              text: shareText,
-              files: [file],
-          }).then(() => {
-              console.log('Thanks for sharing!');
-          }).catch(console.error);
-      } else {
-          // Fallback: copy to clipboard
-          try {
-              await navigator.clipboard.writeText(shareText);
-              alert('Link telah disalin ke clipboard. Silakan tempel di aplikasi yang ingin Anda bagikan.');
-          } catch (err) {
-              console.error('Failed to copy: ', err);
-              alert('Gagal menyalin ke clipboard. Silakan salin secara manual: ' + shareText);
-          }
-      }
-  });
+            await navigator.share(shareData);
+            console.log('Cek Khodam shared successfully');
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    });
 </script>
