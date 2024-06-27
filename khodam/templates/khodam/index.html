@@ -101,69 +101,6 @@
 </html>
 
 <script>
-<<<<<<< HEAD
-    document.getElementById('cekButton').addEventListener('click', function(e) {
-    e.preventDefault();
-    document.querySelector('form').style.display = 'none';
-    document.getElementById('loadingAnimation').style.display = 'block';
-
-    setTimeout(function() {
-        var formData = new FormData(document.querySelector('form'));
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-
-        fetch('{% url 'index' %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json(); // Parse response as JSON
-        })
-        .then(data => {
-            document.getElementById('namaOutput').textContent = data.nama; // Update namaOutput element
-            document.getElementById('khodamOutput').textContent = data.khodam_terpilih.namaKhodam; // Update khodamOutput element
-            document.getElementById('result').style.display = 'block'; // Show result div
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.querySelector('form').style.display = 'block';
-        })
-        .finally(() => {
-            document.getElementById('loadingAnimation').style.display = 'none';
-        });
-    }, Math.floor(Math.random() * 2000));
-});
-
-<<<<<<< HEAD
-
-    document.getElementById('shareButton').addEventListener('click', async () => {
-        try {
-            const resultElement = document.getElementById('result');
-            const canvas = await html2canvas(resultElement);
-            const image = canvas.toDataURL('image/png');
-
-            const blob = await (await fetch(image)).blob();
-
-            const shareData = {
-                title: 'Cek Khodam',
-                text: `Halo ${document.getElementById('namaOutput').textContent}, khodam kamu ${document.getElementById('khodamOutput').textContent.split('adalah')[1]}`,
-                files: [new File([blob], 'cek_khodam.png', { type: 'image/png' })]
-            }
-
-            await navigator.share(shareData);
-            console.log('Cek Khodam shared successfully');
-        } catch (err) {
-            console.error('Error sharing:', err);
-        }
-    });
-=======
->>>>>>> ae431f3 (blablabla)
-=======
   document.getElementById('cekButton').addEventListener('click', function(e) {
       e.preventDefault(); // Menghentikan form dari submit biasa
       document.querySelector('form').style.display = 'none'; // Menyembunyikan form input
@@ -202,5 +139,4 @@
           });
       }, Math.floor(Math.random() * 2000)); // Waktu acak di bawah 2 detik
   });
->>>>>>> fcae107 (update)
 </script>
