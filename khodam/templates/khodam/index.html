@@ -111,48 +111,42 @@
 
 <script>
     document.getElementById('cekButton').addEventListener('click', function(e) {
-        e.preventDefault(); // Menghentikan form dari submit biasa
-        document.querySelector('form').style.display = 'none'; // Menyembunyikan form input
-        document.getElementById('loadingAnimation').style.display = 'block'; // Menampilkan animasi loading
-        setTimeout(function() {
-            var formData = new FormData(document.querySelector('form'));
-            formData.append('csrfmiddlewaretoken',
-            '{{ csrf_token }}'); // Memastikan CSRF token terkirim
-            fetch('{% url 'index' %}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}' // Mengirim CSRF token
-                        }
-                    })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('namaOutput').innerHTML += '<strong> ' + data.nama + '</strong>'; // Menampilkan hasil khodam terpilih
-                    document.getElementById('khodamOutput').innerHTML += '<strong> ' + data.khodam_terpilih
-                        .namaKhodam + '</strong>'; // Menampilkan hasil khodam terpilih
-                    document.getElementById('result').style.display = 'block';
-                    // Output Suara
-                    const teksUntukDibicarakan = `Halo ${data.nama}! Khodam kamu adalah ${data.khodam_terpilih.namaKhodam}`;
-                    const ucapan = new SpeechSynthesisUtterance(teksUntukDibicarakan);
-                    ucapan.lang = 'id-ID'; // Menetapkan bahasa output suara ke bahasa Indonesia
-                    window.speechSynthesis.speak(ucapan);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.querySelector('form').style.display =
-                    'block'; // Menampilkan form kembali jika terjadi error
-                })
-                .finally(() => {
-                    document.getElementById('loadingAnimation').style.display =
-                    'none'; // Sembunyikan animasi loading
-                });
-        }, Math.floor(Math.random() * 2000)); // Waktu acak di bawah 2 detik
-    });
+    e.preventDefault();
+    document.querySelector('form').style.display = 'none';
+    document.getElementById('loadingAnimation').style.display = 'block';
+
+    setTimeout(function() {
+        var formData = new FormData(document.querySelector('form'));
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('{% url 'index' %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Parse response as JSON
+        })
+        .then(data => {
+            document.getElementById('namaOutput').textContent = data.nama; // Update namaOutput element
+            document.getElementById('khodamOutput').textContent = data.khodam_terpilih.namaKhodam; // Update khodamOutput element
+            document.getElementById('result').style.display = 'block'; // Show result div
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.querySelector('form').style.display = 'block';
+        })
+        .finally(() => {
+            document.getElementById('loadingAnimation').style.display = 'none';
+        });
+    }, Math.floor(Math.random() * 2000));
+});
+
 <<<<<<< HEAD
 
     document.getElementById('shareButton').addEventListener('click', async () => {
