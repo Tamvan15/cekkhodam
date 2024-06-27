@@ -221,16 +221,24 @@
                         document.getElementById('hasilKhodamKanan').style.display = 'block';
                     }, 1000);
                     setTimeout(function() {
+                        let teksUntukDibicarakan = '';
+                        
                         if (data.pemenang === 'Seri') {
                             document.getElementById('pemenang').value = 'Seri sama sama kuat khodamnya';
+                            teksUntukDibicarakan = 'Hasilnya seri, khodam ' + data.nama_kiri + ' dan ' + data.nama_kanan + ' sama-sama kuat.';
                         } else {
                             document.getElementById('pemenang').value = 'Pemenangnya adalah ' + data.pemenang_nama + ' dengan khodam ' + data.pemenang_khodam;
+                            teksUntukDibicarakan = 'Pemenangnya adalah ' + data.pemenang_nama + ' dengan khodam ' + data.pemenang_khodam + '.';
                         }
+                        
                         document.getElementById('result').style.display = 'block';
                         document.getElementById('loadingAnimation').style.display = 'none';
+                        
+                        // Output Suara
+                        const ucapan = new SpeechSynthesisUtterance(teksUntukDibicarakan);
+                        ucapan.lang = 'id-ID';
+                        window.speechSynthesis.speak(ucapan);
                     }, 2000);
-
-
                 })
                 .catch(error => {
                     console.error('Error:', error);

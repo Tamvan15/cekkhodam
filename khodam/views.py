@@ -1,11 +1,11 @@
 import base64
-import random
 import os
-from django.core.files.storage import default_storage
+import random
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -115,28 +115,3 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-def save_image(data):
-    # Menentukan nama file. Anda bisa membuatnya lebih unik menggunakan uuid atau timestamp
-    file_name = 'uploaded_image.png'
-    file_path = os.path.join('uploads', file_name)  # Simpan di folder 'uploads'
-
-    # Menyimpan file menggunakan Django default storage
-    with default_storage.open(file_path, 'wb+') as destination:
-        for chunk in data.chunks():
-            destination.write(chunk)
-
-    # Mengembalikan URL publik dari file
-    return default_storage.url(file_path)
-
-def upload_screenshot(request):
-    if request.method == 'POST':
-        image_data = request.POST.get('image')
-        format, imgstr = image_data.split(';base64,')
-        ext = format.split('/')[-1]
-        data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        # Simpan file ke model atau sistem file dan kembalikan URL
-        image_url = save_image(data)  # Implementasi fungsi save_image sesuai kebutuhan
-
-        return JsonResponse({'image_url': image_url})
-    return JsonResponse({'error': 'Invalid request'}, status=400)

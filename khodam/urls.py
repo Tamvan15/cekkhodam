@@ -11,5 +11,5 @@ urlpatterns = [
     path('update_khodam/<int:id>/', views.update_khodam, name='update_khodam'),
     path('delete_khodam/<int:id>/', views.delete_khodam, name='delete_khodam'),
     path('logout/', views.logout_view, name='logout'),
-    path('upload_screenshot', views.upload_screenshot, name='upload_screenshot'),
+
 ]
