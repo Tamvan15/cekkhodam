@@ -17,15 +17,21 @@ from .models import khodam
 @ensure_csrf_cookie  # Memastikan CSRF cookie di-set
 def index(request):
     khodam_terpilih = None
-    nama = request.POST.get('nama')
     if request.method == 'POST':
+        nama = request.POST.get('nama')
         semua_khodam = list(khodam.objects.all())
         khodam_terpilih = random.choice(semua_khodam) if semua_khodam else None
         if khodam_terpilih:
-            return JsonResponse({'khodam_terpilih': {'namaKhodam': khodam_terpilih.namaKhodam}, 'nama': nama})
+            return JsonResponse({
+                'khodam_terpilih': {'namaKhodam': khodam_terpilih.namaKhodam},
+                'nama': nama
+            })
         else:
             return JsonResponse({'error': 'Tidak ada khodam yang tersedia'}, status=404)
+    
+    # Handle GET request or non-AJAX POST request
     return render(request, 'khodam/index.html')
+
 
 
 @ensure_csrf_cookie
