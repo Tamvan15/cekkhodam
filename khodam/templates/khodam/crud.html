@@ -1,181 +1,302 @@
-<!DOCTYPE html>
-<html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRUD Khodam</title>
-    <link href="https://cdn.tailwindcss.com" rel="stylesheet" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/daisyui@2.51.6/dist/full.css"
-      rel="stylesheet"
-      type="text/css"
-    />
-  </head>
-  <body
-    class="bg-gray-100 flex flex-col items-center justify-center min-h-screen"
+{% extends 'khodam/base.html' %} {% block content %}
+<!-- Content -->
+
+<div class="p-4 sm:ml-64 bg-[var(--base-color)]">
+  <div
+    class="p-4 border-[var(--secondary-color)] rounded-lg dark:border-[var(--secondary-color)] mt-14 bg-[var(--base-color)]"
   >
-    <div
-      class="max-w-2xl w-full flex flex-col items-center justify-center min-h-screen"
-    >
-      <!-- Tombol Tambah Khodam -->
-      <div class="mb-4 flex justify-between items-center w-full">
-        <label for="addModal" class="btn btn-primary">Tambah Khodam</label>
-        <a href="{% url 'logout' %}" class="btn btn-error">Logout</a>
+    <div class="flex justify-between items-center pb-4">
+      <!-- Title of Content -->
+      <h1 class="text-[var(--dark-color)] text-2xl font-bold font-sans">
+        Khodam List
+      </h1>
+      <div class="flex space-x-2">
+        <!-- Add Button -->
+        <button
+          for="addModal"
+          class="px-4 py-2 text-sm font-medium text-[color:var(--text-color)] bg-[color:var(--secondary-color)] rounded-lg border border-[color:var(--secondary-color)] hover:bg-[color:var(--base-2-color)] focus:outline-none focus:ring-2 focus:ring-[color:var(--secondary-color)] focus:border-[color:var(--secondary-color)]"
+          onclick="document.getElementById('addModal').checked = true;"
+        >
+          Add
+        </button>
+        <!-- Sort Button -->
+        <button
+          class="px-4 py-2 text-sm font-medium text-[color:var(--text-color)] bg-[color:var(--secondary-color)] rounded-lg border border-[color:var(--secondary-color)] hover:bg-[color:var(--base-2-color)] focus:outline-none focus:ring-2 focus:ring-[color:var(--secondary-color)] focus:border-[color:var(--secondary-color)]"
+          onclick="location.href='?sort=kekuatan'"
+        >
+          Urutkan Kekuatan Terbesar - Terkecil
+        </button>
       </div>
-      <!-- Tabel Khodam -->
-      <div class="overflow-x-auto w-full mb-4">
-        <div class="max-h-[500px] overflow-y-auto">
-          <table class="table w-full">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama Khodam</th>
-                <th>Kekuatan Khodam</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for khodam in khodams %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ khodam.namaKhodam }}</td>
-                <td>{{ khodam.kekuatanKhodam }}</td>
-                <td>
-                  <label
-                    for="editModal-{{ khodam.id }}"
-                    class="btn btn-warning btn-sm"
-                    >Edit</label
-                  >
-                  <label
-                    for="deleteModal-{{ khodam.id }}"
-                    class="btn btn-error btn-sm"
-                    >Hapus</label
-                  >
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <!-- Total Khodam -->
-      <div class="mt-4 text-center">
-        <p>Total Khodam: {{ khodams|length }}</p>
-      </div>
-
-      <!-- Modal Tambah -->
-      <input type="checkbox" id="addModal" class="modal-toggle" />
-      <div class="modal">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg">Tambah Khodam</h3>
-          <form action="{% url 'create_khodam' %}" method="post">
-            {% csrf_token %}
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Nama Khodam</span>
-              </label>
-              <input
-                type="text"
-                name="namaKhodam"
-                placeholder="Nama Khodam"
-                class="input input-bordered"
-                required
-              />
-            </div>
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Kekuatan Khodam</span>
-              </label>
-              <input
-                type="number"
-                name="kekuatanKhodam"
-                placeholder="Kekuatan Khodam"
-                class="input input-bordered"
-                required
-              />
-            </div>
-            <div class="modal-action">
-              <button type="submit" class="btn btn-primary">Simpan</button>
-              <label for="addModal" class="btn">Batal</label>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {% for khodam in khodams %}
-      <!-- Modal Edit -->
-      <input
-        type="checkbox"
-        id="editModal-{{ khodam.id }}"
-        class="modal-toggle"
-      />
-      <div class="modal">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg">Edit Khodam</h3>
-          <form
-            id="editForm-{{ khodam.id }}"
-            action="{% url 'update_khodam' khodam.id %}"
-            method="post"
-          >
-            {% csrf_token %}
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Nama Khodam</span>
-              </label>
-              <input
-                type="text"
-                name="namaKhodam"
-                placeholder="Nama Khodam"
-                class="input input-bordered"
-                value="{{ khodam.namaKhodam }}"
-                required
-              />
-            </div>
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Kekuatan Khodam</span>
-              </label>
-              <input
-                type="number"
-                name="kekuatanKhodam"
-                placeholder="Kekuatan Khodam"
-                class="input input-bordered"
-                value="{{ khodam.kekuatanKhodam }}"
-                required
-              />
-            </div>
-            <div class="modal-action">
-              <button type="submit" class="btn btn-primary">Simpan</button>
-              <label for="editModal-{{ khodam.id }}" class="btn">Batal</label>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Modal Hapus -->
-      <input
-        type="checkbox"
-        id="deleteModal-{{ khodam.id }}"
-        class="modal-toggle"
-      />
-      <div class="modal">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg">Konfirmasi Hapus Khodam</h3>
-          <form
-            id="deleteForm-{{ khodam.id }}"
-            action="{% url 'delete_khodam' khodam.id %}"
-            method="post"
-          >
-            {% csrf_token %}
-            <p>Apakah Anda yakin ingin menghapus khodam ini?</p>
-            <div class="modal-action">
-              <button type="submit" class="btn btn-error">Hapus</button>
-              <label for="deleteModal-{{ khodam.id }}" class="btn">Batal</label>
-            </div>
-          </form>
-        </div>
-      </div>
-      {% endfor %}
     </div>
-  </body>
-</html>
+  </div>
+  <!-- Table -->
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table
+      id="tableKhodam"
+      class="w-full text-sm text-left rtl:text-right text-[color:var(--text-color)] text-[color:var(--text-color)]"
+    >
+      <!-- Table Header -->
+      <thead
+        class="text-xs text-[color:var(--secondary-color)] uppercase bg-[color:var(--base-2-color)] bg-[color:var(--background-color)] text-[color:var(--text-color)]"
+      >
+        <tr>
+          <th scope="col" class="p-4 text-center">No</th>
+          <th scope="col" class="px-12 py-3 text-center">Nama Khodam</th>
+          <th scope="col" class="px-12 py-3 text-center">Kekuatan</th>
+          <th scope="col" class="px-12 py-3 text-center">Action</th>
+        </tr>
+      </thead>
+      <!-- Table Body -->
+      <tbody>
+        <!-- Table Row 1 -->
+        {% for khodam in page_obj %}
+        <tr
+          class="bg-white border-b bg-[color:var(--background-color)] border-[color:var(--secondary-color)] hover:bg-[color:var(--base-3-color)]"
+        >
+          <td class="w-4 p-4 text-center">{{ khodam.id }}</td>
+          <th
+            scope="row"
+            class="px-12 py-4 text-center font-medium text-[color:var(--text-color)] whitespace-nowrap text-[color:var(--text-color)]"
+          >
+            {{ khodam.namaKhodam }}
+          </th>
+          <td class="px-12 py-4 text-center">{{ khodam.kekuatanKhodam }}</td>
+          <td class="flex items-center justify-center px-12 py-4">
+            <button
+              type="button"
+              class="focus:outline-none text-[color:var(--dark-color)] bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2 me-2 mb-2 focus:ring-yellow-900"
+              onclick="document.getElementById('editModal-{{ khodam.id }}').checked = true;"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              class="focus:outline-none text-[color:var(--dark-color)] bg-red-400 hover:bg-red-500 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2 me-2 mb-2 focus:ring-red-900"
+              onclick="document.getElementById('deleteModal-{{ khodam.id }}').checked = true;"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+<!-- Next and Previous Button -->
+
+    <!-- Next and Previous Button -->
+    <nav
+    class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4"
+    aria-label="Table navigation"
+  >
+    <span
+      class="text-sm font-normal text-[color:var(--text-color)] dark:text-[color:var(--text-color)] mb-4 md:mb-0 block w-full md:inline md:w-auto"
+      >Showing
+      <span
+        class="font-semibold text-[color:var(--text-color)] dark:text-[color:var(--text-color)]"
+        >{{ page_obj.start_index }}-{{ page_obj.end_index }}</span
+      >
+      of
+      <span
+        class="font-semibold text-[color:var(--text-color)] dark:text-[color:var(--text-color)]"
+      >
+        {{ page_obj.paginator.count }}
+      </span>
+    </span>
+    <ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+      {% if page_obj.has_previous %}
+      <li>
+        <a
+          href="?page={{ page_obj.previous_page_number }}"
+          class="flex items-center justify-center px-3 h-8 ms-0 leading-tight {% if page_obj.number == 1 %}bg-gray-500 text-white{% else %}text-[color:var(--text-color)] bg-[color:var(--primary-color)]{% endif %} border border-[color:var(--secondary-color)] rounded-s-lg hover:bg-[color:var(--base-2-color)] hover:text-[color:var(--text-color)] active:bg-[color:var(--base-2-color)] active:text-[color:var(--text-color)]"
+          >Previous</a
+        >
+      </li>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li>
+            <a
+              href="#"
+              aria-current="page"
+              class="flex items-center justify-center px-3 h-8 text-white bg-gray-500 border border-[color:var(--secondary-color)] hover:bg-[color:var(--base-2-color)] hover:text-[color:var(--text-color)] active:bg-[color:var(--base-2-color)] active:text-[color:var(--text-color)]"
+            >
+              {{ num }}
+            </a>
+          </li>
+        {% else %}
+          <li>
+            <a
+              href="?page={{ num }}"
+              class="flex items-center justify-center px-3 h-8 leading-tight text-[color:var(--text-color)] bg-[color:var(--primary-color)] border border-[color:var(--secondary-color)] hover:bg-[color:var(--base-2-color)] hover:text-[color:var(--text-color)] active:bg-[color:var(--base-2-color)] active:text-[color:var(--text-color)]"
+            >
+              {{ num }}
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li>
+        <a
+          href="?page={{ page_obj.next_page_number }}"
+          class="flex items-center justify-center px-3 h-8 leading-tight {% if page_obj.number == page_obj.paginator.num_pages %}bg-gray-500 text-white{% else %}text-[color:var(--text-color)] bg-[color:var(--primary-color)]{% endif %} border border-[color:var(--secondary-color)] rounded-e-lg hover:bg-[color:var(--base-2-color)] hover:text-[color:var(--text-color)] active:bg-[color:var(--base-2-color)] active:text-[color:var(--text-color)]"
+          >Next</a
+        >
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+
+<!-- Create Modal -->
+<input type="checkbox" id="addModal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Tambah Khodam</h3>
+    <form action="{% url 'create_khodam' %}" method="post">
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Nama Khodam</span>
+        </label>
+        <input
+          type="text"
+          name="namaKhodam"
+          placeholder="Nama Khodam"
+          class="input input-bordered"
+          required
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Kekuatan Khodam</span>
+        </label>
+        <input
+          type="number"
+          name="kekuatanKhodam"
+          placeholder="Kekuatan Khodam"
+          class="input input-bordered"
+          required
+        />
+      </div>
+      <div class="modal-action">
+        <button type="submit" class="btn btn-primary">Simpan</button>
+        <label for="addModal" class="btn">Batal</label>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% for khodam in page_obj %}
+<!-- Edit Modal -->
+<input type="checkbox" id="editModal-{{ khodam.id }}" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Edit Khodam</h3>
+    <form
+      id="editForm-{{ khodam.id }}"
+      action="{% url 'update_khodam' khodam.id %}"
+      method="post"
+    >
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Nama Khodam</span>
+        </label>
+        <input
+          type="text"
+          name="namaKhodam"
+          placeholder="Nama Khodam"
+          class="input input-bordered"
+          value="{{ khodam.namaKhodam }}"
+          required
+        />
+      </div>
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text">Kekuatan Khodam</span>
+        </label>
+        <input
+          type="number"
+          name="kekuatanKhodam"
+          placeholder="Kekuatan Khodam"
+          class="input input-bordered"
+          value="{{ khodam.kekuatanKhodam }}"
+          required
+        />
+      </div>
+      <div class="modal-action">
+        <button type="submit" class="btn btn-primary">Simpan</button>
+        <label for="editModal-{{ khodam.id }}" class="btn">Batal</label>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<input type="checkbox" id="deleteModal-{{ khodam.id }}" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg">Konfirmasi Hapus Khodam</h3>
+    <form
+      id="deleteForm-{{ khodam.id }}"
+      action="{% url 'delete_khodam' khodam.id %}"
+      method="post"
+    >
+      {% csrf_token %}
+      <p>Apakah Anda yakin ingin menghapus khodam ini?</p>
+      <div class="modal-action">
+        <button type="submit" class="btn btn-error">Hapus</button>
+        <label for="deleteModal-{{ khodam.id }}" class="btn">Batal</label>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Script -->
+<script>
+  // Fungsi untuk mengaktifkan checkbox pada header tabel
+  const checkboxAll = document.getElementById("checkbox-all-search");
+  const checkboxes = document.querySelectorAll("#checkbox-table-search-3");
+
+  checkboxAll.addEventListener("change", function () {
+    checkboxes.forEach(function (checkbox) {
+      checkbox.checked = checkboxAll.checked;
+    });
+  });
+
+  // Fungsi untuk mengaktifkan tombol next/previous
+  const previousButton = document.querySelector(
+    'a[href*="page="][class*="rounded-s-lg"]'
+  );
+  const nextButton = document.querySelector(
+    'a[href*="page="][class*="rounded-e-lg"]'
+  );
+  const pageLinks = document.querySelectorAll(
+    'a[href*="page="]:not([class*="rounded-s-lg"]):not([class*="rounded-e-lg"])'
+  );
+
+  previousButton.addEventListener("click", function (e) {
+    e.preventDefault();
+    const previousPageUrl = previousButton.getAttribute("href");
+    window.location.href = previousPageUrl;
+  });
+
+  nextButton.addEventListener("click", function (e) {
+    e.preventDefault();
+    const nextPageUrl = nextButton.getAttribute("href");
+    window.location.href = nextPageUrl;
+  });
+
+  pageLinks.forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      const pageUrl = link.getAttribute("href");
+      window.location.href = pageUrl;
+    });
+  });
+</script>
+{% endblock %}

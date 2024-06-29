@@ -6,8 +6,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.response import TemplateResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import khodam
@@ -30,7 +32,7 @@ def index(request):
             return JsonResponse({'error': 'Tidak ada khodam yang tersedia'}, status=404)
     
     # Handle GET request or non-AJAX POST request
-    return render(request, 'khodam/index.html')
+    return TemplateResponse(request, 'khodam/index.html')
 
 
 
@@ -83,8 +85,18 @@ def login_view(request):
 
 @login_required(login_url='login')
 def crud_view(request):
-    all_khodams = khodam.objects.all()
-    return render(request, 'khodam/crud.html', {'khodams': all_khodams})
+    if not request.user.is_authenticated:
+        return redirect('login')
+    khodams = khodam.objects.all()
+    sort_by = request.GET.get('sort')
+    
+    if sort_by == 'kekuatan':
+        khodams = khodams.order_by('-kekuatanKhodam')
+    
+    paginator = Paginator(khodams, 10)  # Menampilkan 10 data per halaman
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return TemplateResponse(request, 'khodam/crud.html', {'page_obj': page_obj})
 
 def create_khodam(request):
     if request.method == 'POST':
